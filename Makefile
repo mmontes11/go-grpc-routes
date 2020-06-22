@@ -10,7 +10,7 @@ deps-sync:
 format:
 	go fmt .
 stubs:
-	protoc -I routeguide/ routeguide/route_guide.proto --go_out=plugins=grpc:routeguide
+	protoc -I routeguide/ --go_opt=paths=source_relative --go_out=plugins=grpc:routeguide routeguide/*.proto 
 build: clean format
 	go build -o bin/routeguide -v .
 install:
