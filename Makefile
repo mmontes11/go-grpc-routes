@@ -9,8 +9,8 @@ deps-sync:
 	go mod vendor
 format:
 	go fmt .
-stubs:
-	protoc -I routeguide/ --go_opt=paths=source_relative --go_out=plugins=grpc:routeguide routeguide/*.proto 
+proto:
+	protoc -I route/ --go_opt=paths=source_relative --go_out=plugins=grpc:route route/*.proto 
 build: clean format
 	go build -o bin/routeguide -v .
 install:
