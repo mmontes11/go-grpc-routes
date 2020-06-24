@@ -6,7 +6,7 @@ package route;
 
 service Route {
     rpc GetFeature(Point) returns (Feature) {}
-    rpc ListFeatues(Rectangle) returns (stream Feature) {}
+    rpc ListFeatures(Rectangle) returns (stream Feature) {}
     rpc RecordRoute(stream Point) returns (RouteSummary) {}
     rpc RouteChat(stream RouteNote) returns (stream RouteNote) {}
 }

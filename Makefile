@@ -1,6 +1,6 @@
-.PHONY: clean deps deps-sync format build install run
+.PHONY: clean deps deps-sync format proto server
 
-all: build
+all: server
 clean:
 	rm -rf bin/
 deps:
@@ -8,12 +8,12 @@ deps:
 deps-sync:
 	go mod vendor
 format:
-	go fmt .
+	go fmt server/*.go
 proto:
-	protoc -I route/ --go_opt=paths=source_relative --go_out=plugins=grpc:route route/*.proto 
-build: clean format
-	go build -o bin/routeguide -v .
+	protoc -I route/ --go_opt=paths=source_relative --go_out=plugins=grpc:route route/*.proto
+build: proto clean format
+	go build -o bin/route -v .
 install:
 	go install -v .
 run: build
-	./bin/routeguide
+	./bin/route
