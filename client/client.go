@@ -33,6 +33,7 @@ func main() {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 		grpc.WithBlock(),
+		grpc.WithTimeout(timeout),
 	}
 	conn, err := grpc.Dial(*server, opts...)
 	if err != nil {
