@@ -2,7 +2,9 @@ package server
 
 import (
 	ctx "context"
+	"encoding/json"
 	"errors"
+	"log"
 	"sync"
 
 	"github.com/golang/protobuf/proto"
@@ -41,6 +43,12 @@ func (s *routeServer) RouteChat(stream pb.Route_RouteChatServer) error {
 	return nil
 }
 
+func (s *routeServer) loadFeatures() {
+	if err := json.Unmarshal(data, &s.savedFeatures); err != nil {
+		log.Fatalf("Failed to load default features: %v", err)
+	}
+}
+
 func newRouteServer() *routeServer {
 	return &routeServer{}
 }
@@ -48,6 +56,8 @@ func newRouteServer() *routeServer {
 // NewServer creates a new gRPC server
 func NewServer() *grpc.Server {
 	grpcServer := grpc.NewServer()
-	pb.RegisterRouteServer(grpcServer, newRouteServer())
+	routeServer := newRouteServer()
+	routeServer.loadFeatures()
+	pb.RegisterRouteServer(grpcServer, routeServer)
 	return grpcServer
 }
