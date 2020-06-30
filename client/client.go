@@ -44,11 +44,35 @@ func listFeatures(client pb.RouteClient, rect *pb.Rectangle) {
 			return
 		}
 		if err != nil {
-			log.Printf("Error listing features: %v", err)
+			log.Printf("Error receiving features: %v", err)
 			break
 		}
 		log.Println(feature)
 	}
+}
+
+func recordRoute(client pb.RouteClient) {
+	points := randomPoints()
+	log.Printf("Transversing %d points", len(points))
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	stream, err := client.RecordRoute(ctx)
+	if err != nil {
+		log.Printf("Error recording route: %v", err)
+		return
+	}
+	for _, point := range points {
+		if err := stream.Send(point); err != nil {
+			log.Printf("Error sending points: %v", err)
+			return
+		}
+	}
+	reply, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Printf("Error receiving reply: %v", err)
+		return
+	}
+	log.Printf("Route summary: %v", reply)
 }
 
 func main() {
@@ -65,11 +89,8 @@ func main() {
 	defer conn.Close()
 	client := pb.NewRouteClient(conn)
 
-	getFeature(client, &pb.Point{Latitude: 409146138, Longitude: -746188906})
-	getFeature(client, &pb.Point{Latitude: 0, Longitude: 0})
-
-	listFeatures(client, &pb.Rectangle{
-		Lo: &pb.Point{Latitude: 410000000, Longitude: -740000000},
-		Hi: &pb.Point{Latitude: 415000000, Longitude: -745000000},
-	})
+	getFeature(client, validPoint)
+	getFeature(client, invalidPoint)
+	listFeatures(client, rect)
+	recordRoute(client)
 }

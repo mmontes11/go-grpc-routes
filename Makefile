@@ -21,4 +21,4 @@ install:
 srv: build
 	./bin/route
 cli: fmt-cli
-	go run client/client.go
+	go run client/*.go
