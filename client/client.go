@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"io"
 	"log"
 	"time"
 
@@ -28,6 +29,28 @@ func getFeature(client pb.RouteClient, point *pb.Point) {
 	log.Println(feature)
 }
 
+func listFeatures(client pb.RouteClient, rect *pb.Rectangle) {
+	log.Printf("Looking for features within %v", rect)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	stream, err := client.ListFeatures(ctx, rect)
+	if err != nil {
+		log.Printf("Error listing features: %v", err)
+		return
+	}
+	for {
+		feature, err := stream.Recv()
+		if err == io.EOF {
+			return
+		}
+		if err != nil {
+			log.Printf("Error listing features: %v", err)
+			break
+		}
+		log.Println(feature)
+	}
+}
+
 func main() {
 	flag.Parse()
 	opts := []grpc.DialOption{
@@ -44,4 +67,9 @@ func main() {
 
 	getFeature(client, &pb.Point{Latitude: 409146138, Longitude: -746188906})
 	getFeature(client, &pb.Point{Latitude: 0, Longitude: 0})
+
+	listFeatures(client, &pb.Rectangle{
+		Lo: &pb.Point{Latitude: 410000000, Longitude: -740000000},
+		Hi: &pb.Point{Latitude: 415000000, Longitude: -745000000},
+	})
 }
