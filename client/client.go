@@ -18,6 +18,7 @@ var (
 )
 
 func getFeature(client pb.RouteClient, point *pb.Point) {
+	log.Println("GET FEATURE")
 	log.Printf("Getting feature for point (%d, %d)", point.Latitude, point.Longitude)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -26,10 +27,11 @@ func getFeature(client pb.RouteClient, point *pb.Point) {
 		log.Printf("Error getting feature: %v", err)
 		return
 	}
-	log.Println(feature)
+	log.Print(feature)
 }
 
 func listFeatures(client pb.RouteClient, rect *pb.Rectangle) {
+	log.Println("LIST FEATURES")
 	log.Printf("Looking for features within %v", rect)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -47,11 +49,12 @@ func listFeatures(client pb.RouteClient, rect *pb.Rectangle) {
 			log.Printf("Error receiving features: %v", err)
 			break
 		}
-		log.Println(feature)
+		log.Print(feature)
 	}
 }
 
 func recordRoute(client pb.RouteClient) {
+	log.Println("RECORD ROUTE")
 	points := randomPoints()
 	log.Printf("Transversing %d points", len(points))
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
