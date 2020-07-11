@@ -4,6 +4,7 @@ import (
 	ctx "context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"sync"
@@ -70,7 +71,26 @@ func (s *routeServer) RecordRoute(stream pb.Route_RecordRouteServer) error {
 }
 
 func (s *routeServer) RouteChat(stream pb.Route_RouteChatServer) error {
-	return nil
+	for {
+		in, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		key := serialize(in.Location)
+		s.mux.Lock()
+		s.routeNotes[key] = append(s.routeNotes[key], in)
+		rn := make([]*pb.RouteNote, len(s.routeNotes[key]))
+		copy(rn, s.routeNotes[key])
+		s.mux.Unlock()
+		for _, note := range rn {
+			if err := stream.Send(note); err != nil {
+				return err
+			}
+		}
+	}
 }
 
 func (s *routeServer) loadFeatures() {
@@ -88,15 +108,20 @@ func (s *routeServer) findFeature(point *pb.Point) (*pb.Feature, error) {
 	return nil, errNotFound
 }
 
+func serialize(point *pb.Point) string {
+	return fmt.Sprintf("%d %d", point.Latitude, point.Longitude)
+}
+
 func newRouteServer() *routeServer {
-	return &routeServer{}
+	s := &routeServer{routeNotes: make(map[string][]*pb.RouteNote)}
+	s.loadFeatures()
+	return s
 }
 
 // NewServer creates a new gRPC server
 func NewServer() *grpc.Server {
 	grpcServer := grpc.NewServer()
 	routeServer := newRouteServer()
-	routeServer.loadFeatures()
 	pb.RegisterRouteServer(grpcServer, routeServer)
 	return grpcServer
 }

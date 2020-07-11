@@ -31,3 +31,14 @@ func randomPoint(r *rand.Rand) *pb.Point {
 	long := (r.Int31n(360) - 180) * 1e7
 	return &pb.Point{Latitude: lat, Longitude: long}
 }
+
+func notes() []*pb.RouteNote {
+	return []*pb.RouteNote{
+		{Location: &pb.Point{Latitude: 0, Longitude: 1}, Message: "First message"},
+		{Location: &pb.Point{Latitude: 0, Longitude: 2}, Message: "Second message"},
+		{Location: &pb.Point{Latitude: 0, Longitude: 3}, Message: "Third message"},
+		{Location: &pb.Point{Latitude: 0, Longitude: 1}, Message: "Fourth message"},
+		{Location: &pb.Point{Latitude: 0, Longitude: 2}, Message: "Fifth message"},
+		{Location: &pb.Point{Latitude: 0, Longitude: 3}, Message: "Sixth message"},
+	}
+}

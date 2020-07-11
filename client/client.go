@@ -78,6 +78,38 @@ func recordRoute(client pb.RouteClient) {
 	log.Printf("Route summary: %v", reply)
 }
 
+func routeChat(client pb.RouteClient) {
+	log.Println("ROUTE CHAT")
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	stream, err := client.RouteChat(ctx)
+	if err != nil {
+		log.Printf("Error route chatting: %v", err)
+		return
+	}
+	waitc := make(chan struct{})
+	go func() {
+		for {
+			in, err := stream.Recv()
+			if err == io.EOF {
+				close(waitc)
+				return
+			}
+			if err != nil {
+				log.Printf("Failed to receive a note: %v", err)
+			}
+			log.Printf("Got message \"%s\" at point (%d, %d)", in.Message, in.Location.Latitude, in.Location.Longitude)
+		}
+	}()
+	for _, note := range notes() {
+		if err := stream.Send(note); err != nil {
+			log.Printf("Failed to send a note: %v", err)
+		}
+	}
+	stream.CloseSend()
+	<-waitc
+}
+
 func main() {
 	flag.Parse()
 	opts := []grpc.DialOption{
@@ -96,4 +128,5 @@ func main() {
 	getFeature(client, invalidPoint)
 	listFeatures(client, rect)
 	recordRoute(client)
+	routeChat(client)
 }
