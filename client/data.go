@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"time"
 
-	pb "github.com/mmontes11/go-grpc-routes/route"
+	pb "github.com/mmontes11/go-grpc-routes/pb"
 )
 
 var validPoint = &pb.Point{Latitude: 409146138, Longitude: -746188906}

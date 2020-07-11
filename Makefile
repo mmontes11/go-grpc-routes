@@ -13,7 +13,7 @@ fmt-cli:
 	go fmt client/*.go
 fmt: fmt-srv fmt-cli
 proto:
-	protoc -I route/ --go_opt=paths=source_relative --go_out=plugins=grpc:route route/*.proto
+	protoc -I pb/ --go_opt=paths=source_relative --go_out=plugins=grpc:pb pb/*.proto
 build: fmt-srv proto clean
 	go build -o bin/route -v .
 install:

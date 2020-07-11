@@ -3,7 +3,7 @@ package server
 import (
 	"math"
 
-	pb "github.com/mmontes11/go-grpc-routes/route"
+	pb "github.com/mmontes11/go-grpc-routes/pb"
 )
 
 func toRadians(num float64) float64 {

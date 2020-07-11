@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	pb "github.com/mmontes11/go-grpc-routes/route"
+	pb "github.com/mmontes11/go-grpc-routes/pb"
 	"google.golang.org/grpc"
 )
 
