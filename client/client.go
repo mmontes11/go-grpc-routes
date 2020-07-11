@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	server         = flag.String("server", "localhost:10000", "The server address in the format of host:port")
+	server         = flag.String("server", "localhost:11000", "The server address in the format of host:port")
 	timeoutSeconds = flag.Int("timeout", 10, "Request timeout in seconds")
 	timeout        = time.Duration(*timeoutSeconds) * time.Second
 )

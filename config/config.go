@@ -11,5 +11,5 @@ func getEnv(key string, defaultValue string) string {
 
 var (
 	// Port indicates the server port
-	Port = getEnv("ROUTE_SERVICE_PORT", "10000")
+	Port = getEnv("ROUTE_SERVICE_PORT", "11000")
 )
