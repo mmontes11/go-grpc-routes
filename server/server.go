@@ -11,8 +11,10 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/mmontes11/go-grpc-routes/config"
 	pb "github.com/mmontes11/go-grpc-routes/pb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type routeServer struct {
@@ -120,7 +122,15 @@ func newRouteServer() *routeServer {
 
 // NewServer creates a new gRPC server
 func NewServer() *grpc.Server {
-	grpcServer := grpc.NewServer()
+	var opts []grpc.ServerOption
+	if config.TLS {
+		creds, err := credentials.NewServerTLSFromFile(config.TLScert, config.TLSkey)
+		if err != nil {
+			log.Fatalf("Failed to create TLS credentials %v", err)
+		}
+		opts = []grpc.ServerOption{grpc.Creds(creds)}
+	}
+	grpcServer := grpc.NewServer(opts...)
 	routeServer := newRouteServer()
 	pb.RegisterRouteServer(grpcServer, routeServer)
 	return grpcServer

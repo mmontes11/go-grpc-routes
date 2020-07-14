@@ -9,12 +9,17 @@ import (
 
 	pb "github.com/mmontes11/go-grpc-routes/pb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/testdata"
 )
 
 var (
 	server         = flag.String("server", "localhost:11000", "The server address in the format of host:port")
 	timeoutSeconds = flag.Int("timeout", 10, "Request timeout in seconds")
 	timeout        = time.Duration(*timeoutSeconds) * time.Second
+	tls            = flag.Bool("tls", false, "Enable TLS")
+	tlsCa          = flag.String("tls_ca", testdata.Path("ca.pem"), "Certificate authority file for TLS")
+	tlsServerHost  = flag.String("tls_server_host", "x.test.youtube.com", "The server name used to verify the hostname returned by the TLS handshake")
 )
 
 func getFeature(client pb.RouteClient, point *pb.Point) {
@@ -110,14 +115,27 @@ func routeChat(client pb.RouteClient) {
 	<-waitc
 }
 
-func main() {
-	flag.Parse()
+func getConn(server string) (*grpc.ClientConn, error) {
 	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
 		grpc.WithBlock(),
 		grpc.WithTimeout(timeout),
 	}
-	conn, err := grpc.Dial(*server, opts...)
+	if *tls {
+		creds, err := credentials.NewClientTLSFromFile(*tlsCa, *tlsServerHost)
+		if err != nil {
+			log.Fatalf("Failed to create TLS credentials %v", err)
+		}
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+	} else {
+		opts = append(opts, grpc.WithInsecure())
+	}
+	return grpc.Dial(server, opts...)
+}
+
+func main() {
+	flag.Parse()
+
+	conn, err := getConn(*server)
 	if err != nil {
 		log.Fatalf("Failed to dial: %v", err)
 	}
